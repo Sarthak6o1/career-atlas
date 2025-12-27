@@ -14,7 +14,6 @@ sentence-transformers
 numpy
 pandas
 # Agentic & Utilities
-redis
 requests
 duckduckgo-search
 beautifulsoup4
