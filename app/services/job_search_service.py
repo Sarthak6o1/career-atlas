@@ -39,12 +39,13 @@ class JobSearchService:
         
         search_query = _generate(prompt).strip().replace('"', '')
         
-        # 2. Execute Search (LIVE Web - Past Month)
+        # 2. Execute Search (LIVE Web - Past Month, US/English focus to reduce noise)
         results = []
         try:
             with DDGS() as ddgs:
                 # timelimit='m' ensures we only get jobs posted in the Last Month
-                ddgs_gen = ddgs.text(f"{search_query}", max_results=10, timelimit='m') 
+                # region='us-en' prevents random non-English results
+                ddgs_gen = ddgs.text(f"{search_query}", max_results=15, timelimit='m', region="us-en") 
                 for r in ddgs_gen:
                     results.append(r)
         except Exception as e:
@@ -56,53 +57,71 @@ class JobSearchService:
         # 3. Agentic Verification (Live Site Analysis)
         formatted_jobs = f"### 🌍 Agentic Job Search Report (Live Web)\n"
         formatted_jobs += f"**Strategy**: Searched for *{search_query}* (Past Month)\n"
-        formatted_jobs += "I have scanned the live web. Here are the most relevant opportunities:\n\n"
+        formatted_jobs += "I have scanned the live web. Here are the top verified opportunities:\n\n"
         
-        # INCREASED VERIFICATION: Verify top 5 results
+        valid_results_count = 0
+        
+        # INCREASED VERIFICATION: Verify top results
         for i, job in enumerate(results):
+            if valid_results_count >= 5: break # Stop after 5 good matches
+            
             title = job['title']
             link = job['href']
             snippet = job['body']
             
-            if i < 5: # Deep analysis for top 5
-                verified_note = ""
-                try:
-                    # Attempt to fetch page content (Agentic "Visiting")
-                    page_response = requests.get(link, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
-                    
-                    if page_response.status_code == 200:
-                        soup = BeautifulSoup(page_response.text, 'html.parser')
-                        # Extract text, removing scripts/styles
-                        for script in soup(["script", "style"]):
-                            script.decompose()
-                        text_content = soup.get_text()[:4500] 
-                        
-                        # Quick LLM verification
-                        match_prompt = f"""
-                        I am an AI agent applying for jobs for my user.
-                        
-                        User Resume Summary: {resume_text[:1000]}...
-                        
-                        Target Job Page Content (LIVE SCRAPED DATA):
-                        {text_content}...
-                        
-                        Is this job actually a good fit based on the content?
-                        Answer in 1 sentence starting with "✅ Strong Match:" or "⚠️ Potential Mismatch:".
-                        """
-                        verified_note = "\n> " + _generate(match_prompt).strip()
-                    else:
-                        verified_note = f"\n> *⚠️ Link Unreachable (Status {page_response.status_code})*"
-                except:
-                    verified_note = "\n> *Could not verify page content automatically (Timeout/Blocks).*"
+            # Deep analysis for everything until we find 5 good ones
+            verified_note = ""
+            is_good_match = True # Assume good until proven bad
+            
+            try:
+                # Attempt to fetch page content (Agentic "Visiting")
+                page_response = requests.get(link, timeout=5, headers={"User-Agent": "Mozilla/5.0"})
                 
+                if page_response.status_code == 200:
+                    soup = BeautifulSoup(page_response.text, 'html.parser')
+                    # Extract text, removing scripts/styles
+                    for script in soup(["script", "style"]):
+                        script.decompose()
+                    text_content = soup.get_text()[:3000] 
+                    
+                    # Quick LLM verification
+                    match_prompt = f"""
+                    I am an AI agent filtering job links.
+                    
+                    User Context: {resume_text[:500]}...
+                    Role Target: {target_role}
+                    
+                    Job Page Content:
+                    {text_content}...
+                    
+                    Is this specific job a RELEVANT match? 
+                    If it's a "login page", "directory", "irrelevant blog", or "foreign language nonsense", say NO.
+                    
+                    Answer exactly: "YES" or "NO".
+                    """
+                    decision = _generate(match_prompt).strip().upper()
+                    
+                    if "NO" in decision:
+                        is_good_match = False
+                    else:
+                        verified_note = "✅ *Verified Relevant*"
+                else:
+                    # If dead link, we skip it to be safe/clean
+                    is_good_match = False
+            except:
+                # If timeout, we treat it as unverified but display it if it looks authentic
+                verified_note = "⚠️ *Could not verify live (Timeout)*"
+            
+            if is_good_match:
                 formatted_jobs += f"#### [{title}]({link})\n"
                 formatted_jobs += f"{snippet}\n"
-                formatted_jobs += f"**Agent Verification**: {verified_note}\n\n"
+                formatted_jobs += f"{verified_note}\n\n"
+                valid_results_count += 1
                 
-            else:
-                formatted_jobs += f"- **[{title}]({link})**\n"
-                
-        formatted_jobs += "\n*Note: Top results were visited and verified live.*"
+        if valid_results_count == 0:
+             formatted_jobs += "I found links but none passed the strict relevance verification. Try a broader search."
+        else:
+             formatted_jobs += "\n*Note: Irrelevant links and junk pages were automatically filtered out.*"
         
         return formatted_jobs
 
@@ -120,17 +139,17 @@ class JobSearchService:
         try:
             with DDGS() as ddgs:
                 # Fetch intel - Past Year
-                for r in ddgs.text(query_intel, max_results=4, timelimit='y'):
+                for r in ddgs.text(query_intel, max_results=6, timelimit='y', region="us-en"):
                     r['type'] = 'intel'
                     results.append(r)
                 
                 # Fetch concepts - No time limit (concepts are timeless)
-                for r in ddgs.text(query_concepts, max_results=3):
+                for r in ddgs.text(query_concepts, max_results=4, region="us-en"):
                     r['type'] = 'concept'
                     results.append(r)
                     
                 # Fetch videos - Past Year
-                for r in ddgs.text(query_video, max_results=3, timelimit='y'):
+                for r in ddgs.text(query_video, max_results=3, timelimit='y', region="us-en"):
                     r['type'] = 'video'
                     results.append(r)
                     
