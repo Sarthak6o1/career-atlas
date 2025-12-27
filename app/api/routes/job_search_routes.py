@@ -22,14 +22,11 @@ def find_jobs(
     retriever = Depends(get_retriever)
 ):
     try:
-        # Hybrid Approach: Get RAG matches first
-        matches = retriever.get_role_context(request.target_role, limit=3)
-        
-        # Pass matches to Agentic Service
+        # Pure Agentic Approach: No Vector/RAG context
         result = service.find_jobs(
             request.resume_text, 
             request.target_role, 
-            vector_matches=matches, 
+            vector_matches=None, 
             location=request.location,
             job_type=request.job_type,
             experience_level=request.experience_level

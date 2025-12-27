@@ -23,14 +23,12 @@ def get_agentic_interview_prep(
     try:
         from app.services.job_search_service import JobSearchService
         
-        # Hybrid Approach: Get RAG matches first
-        matches = retriever.get_role_context(request.target_role, limit=3)
-        
         service = JobSearchService()
+        # Pure Agentic Approach: No Vector/RAG context, just web search
         result = service.find_interview_intel(
             request.target_role, 
             request.target_company or "Tech Companies", 
-            vector_matches=matches
+            vector_matches=None 
         )
         return GenerationResult(result_md=result)
     except Exception as e:
