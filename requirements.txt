@@ -1,0 +1,20 @@
+fastapi
+uvicorn
+python-multipart
+python-dotenv
+pydantic
+chromadb
+google-generativeai
+pdfminer.six
+jinja2
+# NLP & Machine Learning
+torch
+transformers
+sentence-transformers
+numpy
+pandas
+# Agentic & Utilities
+redis
+requests
+duckduckgo-search
+beautifulsoup4

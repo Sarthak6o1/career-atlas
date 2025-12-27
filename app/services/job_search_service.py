@@ -40,16 +40,31 @@ class JobSearchService:
         search_query = _generate(prompt).strip().replace('"', '')
         
         # 2. Execute Search (LIVE Web - Past Month, US/English focus to reduce noise)
+        
+        # 2. Execute Search (LIVE Web - Past Month, US/English focus)
         results = []
-        try:
-            with DDGS() as ddgs:
-                # timelimit='m' ensures we only get jobs posted in the Last Month
-                # region='us-en' prevents random non-English results
-                ddgs_gen = ddgs.text(f"{search_query}", max_results=15, timelimit='m', region="us-en") 
-                for r in ddgs_gen:
-                    results.append(r)
-        except Exception as e:
-            return f"Error executing search: {str(e)}"
+        max_retries = 3
+        
+        import time
+        import logging
+        logger = logging.getLogger(__name__)
+
+        for attempt in range(max_retries):
+            try:
+                with DDGS() as ddgs:
+                    ddgs_gen = ddgs.text(f"{search_query}", max_results=15, timelimit='m', region="us-en") 
+                    for r in ddgs_gen:
+                        results.append(r)
+                break 
+            
+            except Exception as e:
+                logger.warning(f"Search attempt {attempt + 1} failed: {e}")
+                if attempt < max_retries - 1:
+                    sleep_time = 2 ** attempt
+                    time.sleep(sleep_time)
+                else:
+                    logger.error("All search retries failed.")
+                    return f"⚠️ **Live Search Unavailable**: We couldn't connect to the live job network after multiple attempts. Please try again in 30 seconds."
             
         if not results:
             return f"No recent job listings found for **{search_query}**. Try broadening your search or removing strict filters."

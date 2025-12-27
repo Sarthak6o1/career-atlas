@@ -2,45 +2,52 @@ import requests
 import google.generativeai as genai
 from app.core.config import settings
 import json
+from app.core.cache import sync_cache
 
-# Using a reliable model via OpenRouter
 MODEL_NAME = "google/gemini-flash-1.5"
 
+@sync_cache(ttl_seconds=86400)
 def _generate(prompt: str) -> str:
-    try:
-        # 1. Try OpenRouter if key is present
-        if settings.OPENROUTER_API_KEY:
+    last_error = ""
+
+    if settings.OPENROUTER_API_KEY:
+        try:
             url = "https://openrouter.ai/api/v1/chat/completions"
             headers = {
                 "Authorization": f"Bearer {settings.OPENROUTER_API_KEY}",
-                "HTTP-Referer": "https://smartresume.ai", 
-                "X-Title": "Smart Resume AI",
+                "HTTP-Referer": "https://smartresume.ai",
+                "X-Title": "Career Atlas",
                 "Content-Type": "application/json"
             }
             data = {
                 "model": MODEL_NAME,
                 "messages": [{"role": "user", "content": prompt}]
             }
-            
             response = requests.post(url, headers=headers, json=data, timeout=30)
-            
+
             if response.status_code == 200:
                 return response.json()['choices'][0]['message']['content']
             else:
-                return f"OpenRouter Error: {response.status_code} - {response.text}"
+                last_error = f"OpenRouter Error: {response.status_code} - {response.text}"
+        except Exception as e:
+            last_error = f"OpenRouter Exception: {str(e)}"
 
-        # 2. Fallback to Gemini Direct if key is present
-        elif settings.GEMINI_API_KEY:
+    if settings.GEMINI_API_KEY:
+        try:
             genai.configure(api_key=settings.GEMINI_API_KEY)
             model = genai.GenerativeModel('gemini-2.5-flash')
             response = model.generate_content(prompt)
             return response.text
-            
-        else:
-            return "Error: No API Key configured. Please set OPENROUTER_API_KEY or GEMINI_API_KEY in .env"
-            
-    except Exception as e:
-        return f"Error generating content: {str(e)}"
+        except Exception as e:
+            if last_error:
+                last_error += f" | Gemini Error: {str(e)}"
+            else:
+                last_error = f"Gemini Error: {str(e)}"
+
+    if not settings.OPENROUTER_API_KEY and not settings.GEMINI_API_KEY:
+        return "Error: No API Key configured. Please set OPENROUTER_API_KEY or GEMINI_API_KEY in .env"
+
+    return f"⚠️ Service Unavailable: Unable to generate content. Details: {last_error}"
 
 def get_job_fit_analysis(resume_text: str, vector_matches: list) -> str:
     potential_roles = set()
