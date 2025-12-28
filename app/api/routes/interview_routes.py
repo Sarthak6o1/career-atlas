@@ -13,23 +13,24 @@ def get_interview_prep(
         return service.generate_interview(request)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-from app.retrieval.retriever import get_retriever
+from app.agents.deep_research_agent import DeepResearchAgent, get_deep_research_agent
 
-@router.post("/interview/agentic", response_model=GenerationResult)
-def get_agentic_interview_prep(
+@router.post(
+    "/interview/agentic", 
+    response_model=GenerationResult,
+    summary="Agentic Interview Prep",
+    description="Performs live web research to find recent interview questions and company intel."
+)
+async def get_agentic_interview_prep(
     request: GenerationRequest,
-    retriever = Depends(get_retriever)
+    agent: DeepResearchAgent = Depends(get_deep_research_agent)
 ):
     try:
-        from app.services.job_search_service import JobSearchService
-        
-        service = JobSearchService()
-        # Pure Agentic Approach: No Vector/RAG context, just web search
-        result = service.find_interview_intel(
+        # Pure Agentic Approach: Uses live web search for fresh intel
+        result = await agent.find_interview_intel_async(
             request.target_role, 
-            request.target_company or "Tech Companies", 
-            vector_matches=None 
+            request.target_company or "Tech Companies"
         )
         return GenerationResult(result_md=result)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Interview Agent Failed: {str(e)}")
