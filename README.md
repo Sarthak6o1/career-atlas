@@ -13,20 +13,20 @@ Powered by **Google Gemini 2.0 Flash**, **ChromaDB**, and **Live Web Search**.
 
 ### 💎 Quick Essentials (Strategy Tools)
 Foundational tools to polish your professional profile using internal benchmarks and logic.
-*   **Job Fit Analysis**: Matches your resume against market standards and highlights gaps.
+*   **Job Fit Analysis**: Matches your resume against market standards and highlights gaps using **RAG** against a database of 2400+ resumes.
 *   **Executive Summary**: Generates a punchy, professional bio for your profile.
 *   **Resume Enhancer**: Tailors your resume keywords for a specific target role (e.g., "Product Manager").
 *   **Cover Letter**: Drafts a personalized cover letter strategy for a specific job application.
 
 ### ⚡ Agentic Deep Research (Live Web)
 Autonomous agents that go beyond static data to fetch real-time market insights.
-*   **Job Scout**: Scours the live web to find relevant job listings, salary bands, and company hiring trends tailored to your profile.
-*   **Agentic Interview Prep**: Researches the specific company's recent news, culture, and interview patterns to generate highly contextual mock questions and answers.
+*   **Job Scout**: Scours the live web using **targeted ATS algorithms (Greenhouse, Lever, etc.)**, filtering out spam/aggregators to find verified, direct-apply opportunities.
+*   **Agentic Interview Prep**: Researches specific company engineering blogs and fresh 2024/2025 community discussions (Reddit/Blind) to predict technical questions.
 
 ### 🧠 Core Intelligence
+*   **DeepResearchAgent Architecture**: Dedicated Python agents that autonomously plan, search, and verify web data.
 *   **Context Command Center**: Persistently holds your resume context to inform every tool.
-*   **Multi-Channel Chat Interface**: Dedicated chat sessions for each tool with **Refresh/Clear History** capabilities.
-*   **RAG Benchmarking**: Compares your profile against a vector database of successful resumes to score competitiveness.
+*   **Multi-Channel Chat Interface**: Modular Floating Assistant with distinct tool sessions.
 *   **Image / OCR Support**: Seamlessly extracts text from **.jpg, .jpeg, and .png** resume images using Gemini Vision.
 
 ---
