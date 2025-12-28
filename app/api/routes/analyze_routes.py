@@ -10,7 +10,7 @@ async def analyze_job_fit(
     service: AnalyzeService = Depends(get_analyze_service)
 ):
     try:
-        return await service.analyze_fit(request)
+        return await service.analyze_fit_async(request)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -20,6 +20,6 @@ async def get_summary(
     service: AnalyzeService = Depends(get_analyze_service)
 ):
     try:
-        return await service.generate_summary(request)
+        return await service.generate_summary_async(request)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

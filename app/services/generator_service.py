@@ -3,9 +3,18 @@ from app.generation.llm import generate_interview_questions, generate_cover_lett
 from app.api.schemas.generator import GenerationRequest, GenerationResult
 from fastapi import Depends
 
+from starlette.concurrency import run_in_threadpool
+
 class GeneratorService:
     def __init__(self, retriever: Retriever):
         self.retriever = retriever
+
+    async def generate_interview_async(self, request: GenerationRequest) -> GenerationResult:
+        return await run_in_threadpool(self.generate_interview, request)
+
+    async def generate_letter_async(self, request: GenerationRequest) -> GenerationResult:
+        return await run_in_threadpool(self.generate_letter, request)
+
 
     def generate_interview(self, request: GenerationRequest) -> GenerationResult:
         matches = self.retriever.get_role_context(request.target_role, limit=3)

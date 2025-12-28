@@ -2,10 +2,17 @@ from app.retrieval.retriever import Retriever, get_retriever
 from app.generation.llm import get_job_fit_analysis, generate_resume_summary
 from app.api.schemas.analyze import AnalyzeRequest, JobFitResult, SummaryResult
 from fastapi import Depends
+from starlette.concurrency import run_in_threadpool
 
 class AnalyzeService:
     def __init__(self, retriever: Retriever):
         self.retriever = retriever
+
+    async def analyze_fit_async(self, request: AnalyzeRequest) -> JobFitResult:
+        return await run_in_threadpool(self.analyze_fit, request)
+
+    async def generate_summary_async(self, request: AnalyzeRequest) -> SummaryResult:
+        return await run_in_threadpool(self.generate_summary, request)
 
     def analyze_fit(self, request: AnalyzeRequest) -> JobFitResult:
         matches = self.retriever.get_similar_profiles(request.resume_text, limit=request.limit)
