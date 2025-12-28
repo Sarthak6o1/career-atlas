@@ -1,11 +1,17 @@
 import axios from '../api/client';
 
-export const uploadResume = async (file, signal) => {
+export const uploadResume = async (file, onProgress, signal) => {
     const formData = new FormData();
     formData.append('file', file);
     const response = await axios.post('/parse/resume', formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (progressEvent) => {
+            if (onProgress) {
+                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                onProgress(percentCompleted);
+            }
         },
         signal
     });

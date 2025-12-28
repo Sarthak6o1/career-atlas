@@ -217,3 +217,31 @@ body {
     font-size: 0.9em;
     color: #f472b6;
 }
+
+/* 3D Button Utility */
+.btn-3d {
+    background: radial-gradient(circle at 50% 0%, #60a5fa 0%, #2563eb 100%);
+    box-shadow: 
+        0 4px 0 #1abe69, /* Shadow for 3D depth */
+        0 10px 10px rgba(0,0,0,0.2);
+    border: none;
+    transition: all 0.15s ease;
+    transform: translateY(0);
+}
+
+.btn-3d:active {
+    transform: translateY(4px); /* Pushes down */
+    box-shadow: 
+        0 0 0 #1abe69, 
+        0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-3d-accent {
+    background: radial-gradient(circle at 50% 0%, #60a5fa 0%, #3b82f6 100%);
+    box-shadow: 0 5px 0 #1d4ed8, 0 12px 15px rgba(37, 99, 235, 0.3);
+}
+
+.btn-3d-accent:active {
+    box-shadow: 0 0 0 #1d4ed8, 0 4px 6px rgba(37, 99, 235, 0.3);
+    transform: translateY(5px);
+}

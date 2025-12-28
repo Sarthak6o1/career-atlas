@@ -50,12 +50,16 @@ export const ChatProvider = ({ children }) => {
         }));
     };
 
+    const [uploadProgress, setUploadProgress] = useState(0);
+
     const handleUpload = async (file) => {
         setLoadingTasks(prev => ({ ...prev, upload: true }));
+        setUploadProgress(0);
         try {
-            const data = await uploadResume(file);
+            const data = await uploadResume(file, (percent) => setUploadProgress(percent));
             setResumeText(data.text);
             setFileName(data.filename);
+            setUploadProgress(100);
 
             // Broadcast success to dashboard
             addMessage('assistant', `Resume **${data.filename}** successfully loaded. Please select an analysis tool from the command center.`, 'markdown', 'dashboard');
@@ -64,6 +68,7 @@ export const ChatProvider = ({ children }) => {
             addMessage('system', `Failed to upload: ${error.message}`, 'error', 'dashboard');
         } finally {
             setLoadingTasks(prev => ({ ...prev, upload: false }));
+            setTimeout(() => setUploadProgress(0), 1000); // Reset after delay
         }
     };
 
@@ -206,7 +211,8 @@ export const ChatProvider = ({ children }) => {
             setResumeText,
             setFileName,
             clearChat,
-            stopAction // Exporting stopAction
+            stopAction, // Exporting stopAction
+            uploadProgress
         }}>
             {children}
         </ChatContext.Provider>
