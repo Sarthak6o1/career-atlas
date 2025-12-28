@@ -2,11 +2,9 @@ import requests
 import google.generativeai as genai
 from app.core.config import settings
 import json
-from app.core.cache import sync_cache
-
 MODEL_NAME = "google/gemini-flash-1.5"
 
-@sync_cache(ttl_seconds=86400)
+# @sync_cache(ttl_seconds=86400) - Start caching again later
 def _generate(prompt: str) -> str:
     last_error = ""
 

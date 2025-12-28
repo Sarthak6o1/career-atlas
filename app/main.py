@@ -13,9 +13,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from app.api.routes import ingest_routes, job_fit_routes, summary_routes, enhance_routes, interview_routes, cover_letter_routes, upload_routes, ai_assistant_routes, job_search_routes
+from app.api.routes import job_fit_routes, summary_routes, enhance_routes, interview_routes, cover_letter_routes, upload_routes, ai_assistant_routes, job_search_routes
 
-app.include_router(ingest_routes.router, prefix="/api", tags=["ingest"])
 app.include_router(job_fit_routes.router, prefix="/api", tags=["job-fit"])
 app.include_router(summary_routes.router, prefix="/api", tags=["summary"])
 app.include_router(enhance_routes.router, prefix="/api", tags=["enhance"])

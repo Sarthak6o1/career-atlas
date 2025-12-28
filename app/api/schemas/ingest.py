@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Dict, Any
 from .common import BaseResponse
-
 class IngestBatchRequest(BaseModel):
     ids: List[str]
     documents: List[str]

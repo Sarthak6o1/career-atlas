@@ -33,8 +33,13 @@ class IngestService:
         
         if not text or len(text.strip()) < 50:
             raise ValueError("Could not extract sufficient text from file.")
+            
+        from app.ingestion.chunker import chunk_text
+        chunks = chunk_text(text, chunk_size=2000, overlap=200)
         
-        return ParseResult(text=text, filename=file.filename)
+        optimized_text = "\n\n".join(chunks)
+        
+        return ParseResult(text=optimized_text, filename=file.filename)
 
 def get_ingest_service(collection: Collection = Depends(get_chroma_collection)) -> IngestService:
     return IngestService(collection)
