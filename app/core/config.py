@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     CHROMA_TENANT: str | None = "default_tenant"
     CHROMA_DATABASE: str | None = "default_database"
     LOG_LEVEL: str = "INFO"
+    REDIS_URL: str = "redis://localhost:6379/0" # Default local Redis
     
     class Config:
         env_file = ".env"
