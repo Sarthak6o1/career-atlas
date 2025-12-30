@@ -8,19 +8,20 @@ import {
     uploadResume,
     chatAiAssistant,
     findJobs,
-    generateAgenticInterview
+    generateAgenticInterview,
+    tailorResume
 } from '../services/chatService.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
+    // Initial message state
     const [messagesByTab, setMessagesByTab] = useState({
         dashboard: [{ id: 'welcome', role: 'assistant', content: "Hi! Welcome to **Career Atlas**. I'm your AI-Guide. Upload a resume or select a tool to get started!", timestamp: new Date() }],
         analyze: [],
-        summary: [],
-        enhance: [],
-        interview: [],
+        tailor: [],
+        'interview-agentic': [],
         cover: [],
         jobs: [],
         'ai-assistant': []
@@ -76,7 +77,7 @@ export const ChatProvider = ({ children }) => {
 
     const handleAction = async (action, payload) => {
         let uiTab = action;
-        if (action === 'interview-agentic') uiTab = 'interview';
+        // Remapping removed: 'interview-agentic' should stay 'interview-agentic' to match Workbench activeTab.
 
         // Only abort ONLY the previous request for THIS specific tab/action
         if (activeControllers.current[uiTab]) {
@@ -89,13 +90,13 @@ export const ChatProvider = ({ children }) => {
         setLoadingTasks(prev => ({ ...prev, [uiTab]: true }));
 
         const labels = {
-            analyze: "Analyze my Job Fit",
-            summary: "Generate Executive Summary",
-            enhance: "Enhance for Target Role",
-            interview: "Prepare Interview Questions",
-            'interview-agentic': "Run Agentic Deep Research",
-            cover: "Draft Cover Letter strategy",
-            jobs: "Find relevant Job postings"
+            analyze: "Running Job Fit Analysis...",
+            summary: "Drafting Executive Summary...",
+            enhance: "Generating Skill Enhancements...",
+            tailor: "Tailoring Resume...",
+            cover: "Drafting Cover Letter...",
+            'interview-agentic': "Gathering Interview Intelligence...",
+            jobs: "Scouting Opportunities..."
         };
         const isChatAction = action === 'dashboard' || action === 'ai-assistant';
         const displayContent = isChatAction ? payload.text : (labels[action] || action);
@@ -110,9 +111,6 @@ export const ChatProvider = ({ children }) => {
             let content = "";
             let sources = [];
 
-            // Pass signal to service calls if they support it, otherwise we just check state
-            // For now, we wrap the await and check signal after
-
             switch (action) {
                 case 'analyze':
                     result = await analyzeJobFit(payload.text, controller.signal);
@@ -123,14 +121,14 @@ export const ChatProvider = ({ children }) => {
                 case 'enhance':
                     result = await enhanceResume(payload.text, payload.role, payload.company, controller.signal);
                     break;
-                case 'interview':
-                    result = await generateInterview(payload.text, payload.role, payload.company, controller.signal);
-                    break;
-                case 'interview-agentic':
-                    result = await generateAgenticInterview(payload.text, payload.role, payload.company, controller.signal);
+                case 'tailor':
+                    result = await tailorResume(payload.text, payload.role, controller.signal);
                     break;
                 case 'cover':
                     result = await generateCoverLetter(payload.text, payload.role, payload.company, controller.signal);
+                    break;
+                case 'interview-agentic':
+                    result = await generateAgenticInterview(payload.text, payload.role, payload.company, controller.signal);
                     break;
                 case 'jobs':
                     result = await findJobs(payload.text, payload.role, payload.company, payload.jobType, payload.experienceLevel, controller.signal);
@@ -145,14 +143,14 @@ export const ChatProvider = ({ children }) => {
 
             if (controller.signal.aborted) throw new DOMException('Aborted', 'AbortError');
 
-            // Extract content based on result structure (simplified from original mapped logic)
+            // Extract content based on result structure
             if (result) {
                 if (action === 'analyze') content = result.summary_analysis;
                 else if (action === 'summary') content = result.summary_md;
                 else if (action === 'enhance') content = result.enhancement_md;
-                else if (action === 'interview') content = result.result_md;
-                else if (action === 'interview-agentic') content = result.result_md;
+                else if (action === 'tailor') content = result.tailored_content + "\n\n" + result.diff_analysis;
                 else if (action === 'cover') content = result.result_md;
+                else if (action === 'interview-agentic') content = result.result_md;
                 else if (action === 'jobs') content = result.result_md;
                 else if (['ai-assistant', 'dashboard'].includes(action)) {
                     content = result.reply;

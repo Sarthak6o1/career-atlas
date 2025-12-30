@@ -57,3 +57,8 @@ export const findJobs = async (resumeText, targetRole, location, jobType, experi
     const response = await axios.post('/find-jobs', { resume_text: resumeText, target_role: targetRole, location: location, job_type: jobType, experience_level: experienceLevel }, { signal });
     return response.data;
 };
+
+export const tailorResume = async (resumeText, jobDescription, signal) => {
+    const response = await axios.post('/tailor', { resume_text: resumeText, job_description: jobDescription }, { signal });
+    return response.data;
+};

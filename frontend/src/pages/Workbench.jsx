@@ -96,21 +96,45 @@ const Workbench = () => {
                                             </h2>
                                         </div>
 
-                                        {['enhance', 'interview', 'cover', 'jobs'].includes(activeTab) && (
+                                        {['tailor', 'cover', 'interview-agentic', 'jobs', 'enhance'].includes(activeTab) && (
                                             <div className="glass-panel" style={{ marginBottom: '1.5rem', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(30, 41, 59, 0.4)' }}>
                                                 <h4 style={{ color: '#94a3b8', margin: '0 0 1rem 0', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                                    {activeTab === 'jobs' ? 'Search Parameters' : 'Target Context (Required)'}
+                                                    {activeTab === 'jobs' ? 'Search Parameters' :
+                                                        activeTab === 'tailor' ? 'Job Description (Required)' :
+                                                            'Target Context (Required)'}
                                                 </h4>
-                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Target Role (e.g. Senior PM)"
-                                                        value={roleInput}
-                                                        onChange={(e) => setRoleInput(e.target.value)}
-                                                        style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--glass-border)', color: 'white', outline: 'none' }}
-                                                    />
 
-                                                    {['enhance', 'interview', 'cover'].includes(activeTab) && (
+                                                <div style={{ display: 'grid', gridTemplateColumns: activeTab === 'tailor' ? '1fr' : '1fr 1fr', gap: '1rem' }}>
+
+                                                    {activeTab === 'tailor' ? (
+                                                        <textarea
+                                                            placeholder="Paste the full Job Description here..."
+                                                            value={roleInput}
+                                                            onChange={(e) => setRoleInput(e.target.value)}
+                                                            rows={6}
+                                                            style={{
+                                                                padding: '1rem',
+                                                                borderRadius: '12px',
+                                                                background: 'rgba(0,0,0,0.3)',
+                                                                border: '1px solid var(--glass-border)',
+                                                                color: 'white',
+                                                                outline: 'none',
+                                                                resize: 'vertical',
+                                                                width: '100%',
+                                                                fontFamily: 'inherit'
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <input
+                                                            type="text"
+                                                            placeholder={activeTab === 'jobs' ? 'Job Title / Keywords' : "Target Role (e.g. Senior PM)"}
+                                                            value={roleInput}
+                                                            onChange={(e) => setRoleInput(e.target.value)}
+                                                            style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--glass-border)', color: 'white', outline: 'none' }}
+                                                        />
+                                                    )}
+
+                                                    {['cover', 'interview-agentic', 'enhance'].includes(activeTab) && (
                                                         <input
                                                             type="text"
                                                             placeholder="Target Company (e.g. Google)"
@@ -121,33 +145,13 @@ const Workbench = () => {
                                                     )}
 
                                                     {activeTab === 'jobs' && (
-                                                        <>
-                                                            <input
-                                                                type="text"
-                                                                placeholder="Preferred Location (e.g. Remote, NY)"
-                                                                value={companyInput} // Note: Was this intended to be companyInput or a new state? Using companyInput as pseudo-location placeholder based on prior code
-                                                                onChange={(e) => setCompanyInput(e.target.value)}
-                                                                style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--glass-border)', color: 'white', outline: 'none' }}
-                                                            />
-                                                            <input
-                                                                type="text"
-                                                                placeholder="Experience (e.g. 5+ years)"
-                                                                value={experienceInput}
-                                                                onChange={(e) => setExperienceInput(e.target.value)}
-                                                                style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--glass-border)', color: 'white', outline: 'none' }}
-                                                            />
-                                                            <select
-                                                                value={jobTypeInput}
-                                                                onChange={(e) => setJobTypeInput(e.target.value)}
-                                                                style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--glass-border)', color: 'white', outline: 'none' }}
-                                                            >
-                                                                <option value="" disabled>Job Type (Any)</option>
-                                                                <option value="Remote">Remote</option>
-                                                                <option value="On-site">On-site</option>
-                                                                <option value="Hybrid">Hybrid</option>
-                                                                <option value="Contract">Contract</option>
-                                                            </select>
-                                                        </>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Location (e.g. Remote, NY)"
+                                                            value={companyInput}
+                                                            onChange={(e) => setCompanyInput(e.target.value)}
+                                                            style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--glass-border)', color: 'white', outline: 'none' }}
+                                                        />
                                                     )}
                                                 </div>
                                             </div>
@@ -202,31 +206,40 @@ const Workbench = () => {
 
                                                 <button
                                                     onClick={() => handleAction(
-                                                        activeTab === 'interview' ? 'interview-agentic' : activeTab,
+                                                        activeTab,
                                                         {
                                                             text: resumeText,
                                                             role: roleInput || null,
-                                                            company: companyInput || null,
+                                                            company: companyInput || null, // For Jobs: Location; For others: Company
                                                             jobType: jobTypeInput || null,
-                                                            experienceLevel: experienceInput || null
+                                                            experienceLevel: experienceInput || null // For Jobs: Date Posted
                                                         }
                                                     )}
-                                                    disabled={loadingTasks[activeTab] || (['enhance', 'interview', 'cover'].includes(activeTab) && (!roleInput || !companyInput)) || (activeTab === 'jobs' && !roleInput)}
+                                                    disabled={
+                                                        loadingTasks[activeTab] ||
+                                                        (['cover', 'interview-agentic', 'enhance'].includes(activeTab) && (!roleInput || !companyInput)) ||
+                                                        (activeTab === 'tailor' && !roleInput) ||
+                                                        (activeTab === 'jobs' && !roleInput)
+                                                    }
                                                     className="snap-pill"
                                                     style={{
                                                         padding: '0.8rem 2rem',
-                                                        background: (loadingTasks[activeTab] || (['enhance', 'interview', 'cover'].includes(activeTab) && (!roleInput || !companyInput)) || (activeTab === 'jobs' && !roleInput)) ? 'rgba(255,255,255,0.1)' : 'var(--accent)',
+                                                        background: 'var(--accent)',
                                                         color: 'white',
                                                         border: 'none',
                                                         borderRadius: '12px',
-                                                        cursor: (loadingTasks[activeTab] || (['enhance', 'interview', 'cover'].includes(activeTab) && (!roleInput || !companyInput)) || (activeTab === 'jobs' && !roleInput)) ? 'not-allowed' : 'pointer',
+                                                        cursor: 'pointer',
                                                         fontWeight: '700',
                                                         fontSize: '1rem',
                                                         boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)',
-                                                        opacity: (loadingTasks[activeTab] || (['enhance', 'interview', 'cover'].includes(activeTab) && (!roleInput || !companyInput)) || (activeTab === 'jobs' && !roleInput)) ? 0.5 : 1,
+                                                        opacity: 1,
                                                         display: 'flex',
                                                         alignItems: 'center',
-                                                        gap: '0.5rem'
+                                                        gap: '0.5rem',
+                                                        filter: (loadingTasks[activeTab] ||
+                                                            (['cover', 'interview-agentic', 'enhance'].includes(activeTab) && (!roleInput || !companyInput)) ||
+                                                            (activeTab === 'tailor' && !roleInput) ||
+                                                            (activeTab === 'jobs' && !roleInput)) ? 'grayscale(100%) opacity(0.5)' : 'none'
                                                     }}
                                                 >
                                                     {loadingTasks[activeTab] ? "Processing..." : (
