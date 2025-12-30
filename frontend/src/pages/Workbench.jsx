@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useChat } from '../hooks/useChat.js';
-import { Zap, Mic, FileText, ArrowRight, X, RefreshCw, Square } from 'lucide-react';
+import { logout } from '../services/authService';
+import { Zap, Mic, FileText, ArrowRight, X, RefreshCw, Square, LogOut } from 'lucide-react';
 import ChatContainer from '../components/chat/ChatContainer';
 
 // Modular Components
@@ -49,6 +50,9 @@ const Workbench = () => {
                             <X size={16} /> New Upload
                         </button>
                     )}
+                    <button onClick={logout} style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '0.5rem 1rem', borderRadius: '8px', color: '#e2e8f0', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', transition: 'all 0.2s' }}>
+                        <LogOut size={16} /> Log Out
+                    </button>
                 </div>
             </div>
 

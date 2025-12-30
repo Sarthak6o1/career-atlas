@@ -1,0 +1,48 @@
+from fastapi import APIRouter, HTTPException, Depends, status
+from app.api.schemas.user import UserCreate, UserLogin
+from app.core.database import db
+from app.core.config import settings
+from passlib.context import CryptContext
+from typing import Any
+from datetime import datetime, timedelta, timezone
+import jwt
+
+router = APIRouter()
+# Using pbkdf2_sha256 to avoid bcrypt version conflict
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return encoded_jwt
+
+@router.post("/auth/signup")
+async def signup(user: UserCreate) -> Any:
+    database = db.get_db()
+    existing_user = await database.users.find_one({"email": user.email})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    hashed = get_password_hash(user.password)
+    user_doc = {"email": user.email, "hashed_password": hashed}
+    result = await database.users.insert_one(user_doc)
+    
+    return {"message": "User created successfully", "id": str(result.inserted_id)}
+
+@router.post("/auth/login")
+async def login(user: UserLogin) -> Any:
+    database = db.get_db()
+    user_doc = await database.users.find_one({"email": user.email})
+    if not user_doc or not verify_password(user.password, user_doc["hashed_password"]):
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+    
+    access_token = create_access_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer", "email": user.email}
