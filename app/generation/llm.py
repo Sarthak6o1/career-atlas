@@ -8,6 +8,15 @@ MODEL_NAME = "google/gemini-flash-1.5"
 def _generate(prompt: str) -> str:
     last_error = ""
 
+    if settings.GEMINI_API_KEY:
+        try:
+            genai.configure(api_key=settings.GEMINI_API_KEY)
+            model = genai.GenerativeModel('gemini-2.0-flash')
+            response = model.generate_content(prompt)
+            return response.text
+        except Exception as e:
+            last_error = f"Gemini Error: {str(e)}"
+
     if settings.OPENROUTER_API_KEY:
         try:
             url = "https://openrouter.ai/api/v1/chat/completions"
@@ -18,7 +27,7 @@ def _generate(prompt: str) -> str:
                 "Content-Type": "application/json"
             }
             data = {
-                "model": MODEL_NAME,
+                "model": "google/gemini-flash-1.5",
                 "messages": [{"role": "user", "content": prompt}]
             }
             response = requests.post(url, headers=headers, json=data, timeout=30)
@@ -26,21 +35,9 @@ def _generate(prompt: str) -> str:
             if response.status_code == 200:
                 return response.json()['choices'][0]['message']['content']
             else:
-                last_error = f"OpenRouter Error: {response.status_code} - {response.text}"
+                last_error += f" | OpenRouter Error: {response.status_code} - {response.text}"
         except Exception as e:
-            last_error = f"OpenRouter Exception: {str(e)}"
-
-    if settings.GEMINI_API_KEY:
-        try:
-            genai.configure(api_key=settings.GEMINI_API_KEY)
-            model = genai.GenerativeModel('gemini-2.5-flash')
-            response = model.generate_content(prompt)
-            return response.text
-        except Exception as e:
-            if last_error:
-                last_error += f" | Gemini Error: {str(e)}"
-            else:
-                last_error = f"Gemini Error: {str(e)}"
+            last_error += f" | OpenRouter Exception: {str(e)}"
 
     if not settings.OPENROUTER_API_KEY and not settings.GEMINI_API_KEY:
         return "Error: No API Key configured. Please set OPENROUTER_API_KEY or GEMINI_API_KEY in .env"
@@ -155,6 +152,40 @@ def enhance_resume_text(text: str, target_role: str | None = None, target_compan
     """
     return _generate(prompt)
 
+def tailor_resume(resume_text: str, job_description: str) -> str:
+    prompt = f"""
+    You are an Expert Resume Writer & Strategist.
+    
+    GOAL: Rewrite the candidate's specific resume bullet points to align with the provided Job Description (JD).
+    
+    RULES:
+    1. **NO LIES**: Do not invent experiences. Only reframe existing ones.
+    2. **Keywords**: Naturally integrate keywords from the JD (e.g., if JD asks for "Cross-functional leadership" and user has "Managed teams", change it to "Provided cross-functional leadership...").
+    3. **Impact**: Focus on results/metrics.
+    
+    Candidate Resume:
+    "{resume_text[:4000]}"
+    
+    Target Job Description:
+    "{job_description[:4000]}"
+    
+    OUTPUT FORMAT (Markdown):
+    
+    ### 🔄 Tailored Summary
+    (A rewritten Professional Summary specifically pitching for this role)
+    
+    ### 🛠 Re-Optimized Bullet Points
+    (List the top 3-4 roles from their history. For each, show the *Original* vs *Tailored* version of 2 key bullet points).
+    
+    **Role: [Job Title]**
+    *   🔴 *Before*: [Original Bullet]
+    *   🟢 *After*: [Tailored Bullet]
+    
+    ### 💡 Strategic Explanation
+    (Briefly explain: "I emphasized your X experience because the JD mentioned Y three times.")
+    """
+    return _generate(prompt)
+
 def chat_with_ai_assistant(message: str, resume_text: str | None = None, vector_context: str | None = None) -> str:
     # Context Construction
     context_section = ""
@@ -197,7 +228,7 @@ def extract_text_from_image(image_bytes: bytes, mime_type: str) -> str:
     try:
         if settings.GEMINI_API_KEY:
             genai.configure(api_key=settings.GEMINI_API_KEY)
-            model = genai.GenerativeModel('gemini-2.5-flash')
+            model = genai.GenerativeModel('gemini-2.0-flash')
             
             prompt = "Please accurately transcribe all the text found in this resume image. Preserve the structure as much as possible using Markdown."
             
