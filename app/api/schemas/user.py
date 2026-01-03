@@ -10,5 +10,8 @@ class UserLogin(UserBase):
     password: str
 
 class UserInDB(UserBase):
-    id: str  # mapped from _id
+    id: str
     hashed_password: str
+    resume_text: str | None = None
+    resume_filename: str | None = None
+    created_at: str | None = None

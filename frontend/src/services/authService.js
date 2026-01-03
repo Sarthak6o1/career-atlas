@@ -22,6 +22,11 @@ export const logout = () => {
     window.location.href = '/login';
 };
 
+export const getProfile = async () => {
+    const response = await axios.get('/auth/me');
+    return response.data;
+};
+
 export const isAuthenticated = () => {
     return !!localStorage.getItem('token');
 };

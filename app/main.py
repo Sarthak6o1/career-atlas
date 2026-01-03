@@ -7,7 +7,7 @@ from app.api.routes import (
     job_fit_routes, summary_routes, enhance_routes, 
     interview_routes, cover_letter_routes, upload_routes, 
     ai_assistant_routes, job_search_routes, tailor_routes,
-    auth_routes
+    auth_routes, chat_routes, job_routes, audit_routes
 )
 
 @asynccontextmanager
@@ -39,6 +39,10 @@ app.include_router(upload_routes.router, prefix="/api", tags=["utils"])
 app.include_router(job_search_routes.router, prefix="/api", tags=["jobs"])
 app.include_router(tailor_routes.router, prefix="/api", tags=["tailor"])
 app.include_router(auth_routes.router, prefix="/api", tags=["auth"])
+
+app.include_router(chat_routes.router, prefix="/api", tags=["chat"])
+app.include_router(job_routes.router, prefix="/api", tags=["saved-jobs"])
+app.include_router(audit_routes.router, prefix="/api", tags=["audit"])
 
 @app.get("/health")
 async def health_check():

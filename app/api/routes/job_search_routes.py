@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.api.schemas.job import JobSearchRequest, JobSearchResult
+from app.api.schemas.job_schema import JobSearchRequest, JobSearchResult
 from app.agents.deep_research_agent import DeepResearchAgent, get_deep_research_agent
 from app.retrieval.retriever import get_retriever
 

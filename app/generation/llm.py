@@ -132,23 +132,61 @@ def generate_cover_letter(text: str, target_role_description: str | None = None,
     return _generate(prompt)
 
 def enhance_resume_text(text: str, target_role: str | None = None, target_company: str | None = None, reference_matches: list | None = None) -> str:
-    target = target_role if target_role else "Market Standard for similar senior roles"
-    company_info = f" targeting {target_company}" if target_company else ""
+    target = target_role if target_role else "Professional Standard"
+    company_info = f"targeting {target_company}" if target_company else ""
     
     prompt = f"""
-    You are a nice "Future Skills" Coach.
+    You are an expert Execuive Resume Editor & Career Coach.
     
-    Candidate Resume:
-    "{text[:4000]}"
+    Candidate Resume Content:
+    "{text[:6000]}"
     
-    Target Role/Goal: {target}{company_info}
+    Objective: Optimize this resume for: {target} {company_info}.
     
-    Focus ONLY on **FUTURE GROWTH** ("What else technology/skills he can learn").
+    TASK 1: AUDIT
+    Identify critical issues:
+    - Grammar/Spelling errors.
+    - Weak verbs (e.g. "Responsible for", "Helped with").
+    - Passive voice.
+    - Lack of quantifiable impact (metrics).
     
-    Format as Markdown:
-    1. **Missing Tech Stack**: List 3 specific modern technologies or tools this candidate usually needs for a {target} but currently lacks.
-    2. **Skill Upgrade Path**: Recommend a specific learning path (e.g., "Learn X to complement your Y").
-    3. **Resume Addition**: Write a sample "Skills" section entry that they *could* have after 3 months of study.
+    TASK 2: REWRITE
+    Rewrite the entire resume content. 
+    - Fix all identified errors.
+    - Replace weak verbs with Power Verbs (e.g., "Orchestrated", "Engineered", "Spearheaded").
+    - Enhance bullet points to be results-oriented.
+    
+    Output Format (Markdown):
+    ## 🔍 Audit Findings
+    * **Critical Mistakes**: [List specific grammar/spelling errors found]
+    * **Weak Phrasing**: [List examples of weak verbs used]
+    * **Impact Analysis**: [Comment on whether metrics were sufficient]
+
+    ## ✨ Enhanced Resume Draft
+    [The COMPLETE, polished resume content below. Use clean H1/H2 headers.]
+    """
+    return _generate(prompt)
+
+def audit_resume_text(text: str) -> str:
+    prompt = f"""
+    You are a Brutally Honest Senior Recruiter / Hiring Manager.
+    
+    Candidate Resume Content:
+    "{text[:6000]}"
+    
+    Task: Perform a "Red Flag Audit" on this resume. Find things that would cause immediate rejection or misinterpretation.
+    
+    Format Findings as Markdown:
+    ## 🚩 Critical Red Flags
+    * **Ambiguities**: Quote specific phrases that sound vague, suspicious, or confusing. Explain WHY they are bad.
+    * **Formatting/Visuals**: Comment on readability, density, and structure.
+    * **Grammar & Typography**: List specific typos, inconsistency in tense, or punctuation errors.
+    
+    ## ⚠️ Potential Misinterpretations
+    * [Point out anything that might make the candidate look underqualified or overqualified unintentionally]
+
+    ## ✅ Action Plan
+    * [3-5 concrete steps to remove these flags]
     """
     return _generate(prompt)
 
