@@ -22,7 +22,7 @@ const ChatContainer = ({ showInput = false, messages, isLoading, onSend, suggest
                             key={i}
                             onClick={() => onSend(s)}
                             style={{
-                                background: 'rgba(255,255,255,0.05)',
+                                background: 'var(--glass-border)',
                                 border: '1px solid var(--glass-border)',
                                 borderRadius: '16px',
                                 padding: '0.4rem 0.8rem',
@@ -32,8 +32,8 @@ const ChatContainer = ({ showInput = false, messages, isLoading, onSend, suggest
                                 whiteSpace: 'nowrap',
                                 transition: 'all 0.2s'
                             }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'white'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent)'; e.currentTarget.style.color = 'white'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--glass-border)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
                         >
                             {s}
                         </button>

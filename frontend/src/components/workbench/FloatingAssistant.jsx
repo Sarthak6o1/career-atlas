@@ -16,7 +16,7 @@ const FloatingAssistant = ({ messages, isLoading, onSend }) => {
                     maxHeight: 'calc(100vh - 120px)',
                     background: 'var(--card-bg)',
                     borderRadius: '24px',
-                    border: '1px solid rgba(255,255,255,0.15)',
+                    border: '1px solid var(--glass-border)',
                     boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
                     backdropFilter: 'blur(20px)',
                     display: 'flex',
@@ -24,16 +24,16 @@ const FloatingAssistant = ({ messages, isLoading, onSend }) => {
                     overflow: 'hidden',
                     marginBottom: '0.5rem'
                 }}>
-                    <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ padding: '1rem', background: 'var(--glass-border)', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '700', color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                 <Bot size={18} color="var(--accent)" /> Atlas Assistant
                             </h3>
                             <span style={{ fontSize: '0.75rem', color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.3rem', marginLeft: '1.6rem', marginTop: '0.2rem' }}>
                                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 5px #10b981' }}></span> Online
                             </span>
                         </div>
-                        <button onClick={() => setShowChat(false)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+                        <button onClick={() => setShowChat(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
                             <X size={18} />
                         </button>
                     </div>

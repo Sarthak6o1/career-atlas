@@ -1,7 +1,16 @@
 import React from 'react';
-import { Zap, AlignLeft, Briefcase, Mic, FileText, ArrowRight, Sparkles, Target, Globe } from 'lucide-react';
+import { Zap, AlignLeft, Briefcase, Mic, FileText, ArrowRight, Sparkles, Target, Globe, Search } from 'lucide-react';
 
 export const ACTIONS = [
+    {
+        id: 'audit',
+        label: 'Resume Audit',
+        icon: Search,
+        color: '#ef4444',
+        desc: "Find critical mistakes & red flags",
+        gradient: 'linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%)',
+        border: '#FCA5A5'
+    },
     {
         id: 'analyze',
         label: 'Job Fit Analysis',
@@ -77,7 +86,7 @@ const DashboardGrid = ({ onSelect }) => {
                 marginBottom: '1.5rem',
                 fontWeight: '800',
                 fontSize: '1.4rem',
-                color: '#e2e8f0',
+                color: 'var(--text-primary)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.8rem',
@@ -106,7 +115,7 @@ const DashboardGrid = ({ onSelect }) => {
                             gap: '1.2rem',
                             borderRadius: '24px',
                             border: `1px solid ${action.border}30`,
-                            background: `linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.6))`,
+                            background: 'var(--card-bg)',
                             position: 'relative',
                             overflow: 'hidden',
                             transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -141,14 +150,14 @@ const DashboardGrid = ({ onSelect }) => {
                                 alignItems: 'center',
                                 justifyContent: 'center'
                             }}>
-                                <ArrowRight size={16} color="#94a3b8" />
+                                <ArrowRight size={16} color="var(--text-secondary)" />
                             </div>
                         </div>
 
                         <div>
                             <h4 style={{
                                 margin: '0 0 0.5rem',
-                                color: '#f1f5f9',
+                                color: 'var(--text-primary)',
                                 fontWeight: '700',
                                 fontSize: '1.25rem',
                                 letterSpacing: '-0.01em'
@@ -158,7 +167,7 @@ const DashboardGrid = ({ onSelect }) => {
                             <p style={{
                                 margin: 0,
                                 fontSize: '0.95rem',
-                                color: '#94a3b8',
+                                color: 'var(--text-secondary)',
                                 lineHeight: '1.5'
                             }}>
                                 {action.desc}

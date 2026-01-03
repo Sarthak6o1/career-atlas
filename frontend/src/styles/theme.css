@@ -31,3 +31,22 @@
     --radius-lg: 24px;
     --radius-xl: 32px;
 }
+
+[data-theme='light'] {
+    --bg-color: #f8fafc;
+    --bg-gradient:
+        radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.1), transparent 40%),
+        radial-gradient(circle at 100% 0%, rgba(139, 92, 246, 0.1), transparent 40%),
+        linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --glass-shine: rgba(255, 255, 255, 0.5);
+
+    --accent: #2563eb;
+    --accent-hover: #3b82f6;
+    /* Keep accent gradient similar but slightly adjusted if needed, or same is fine */
+}
